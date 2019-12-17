@@ -32,12 +32,15 @@ class Resquest(BaseHTTPRequestHandler):
         if 0 < len(poemList):
             try:
                 mutex.acquire()
-                retData = {'result': ''}
-                retData['result'] = poemList[0]
+                poem = poemList[0]
                 poemList.pop(0)
-                self.wfile.write(json.dumps(retData).encode(encoding='utf-8'))
+                #print(poem)
+                self.wfile.write(str(poem).encode(encoding='utf-8'))
             finally:
                 mutex.release()
+        else:
+            #print("nothing")
+            self.wfile.write(str("nothing to say").encode(encoding='utf-8'))
 
 
 class fillPoem(threading.Thread):  # 继承父类threading.Thread
@@ -72,21 +75,21 @@ def main(_):
     thread.start()
 
     #FLAGS.start_string = FLAGS.start_string.decode('utf-8')
-    converter = TextConverter(filename=FLAGS.converter_path)
-    if os.path.isdir(FLAGS.checkpoint_path):
-        FLAGS.checkpoint_path =\
-            tf.train.latest_checkpoint(FLAGS.checkpoint_path)
+    # converter = TextConverter(filename=FLAGS.converter_path)
+    # if os.path.isdir(FLAGS.checkpoint_path):
+    #     FLAGS.checkpoint_path =\
+    #         tf.train.latest_checkpoint(FLAGS.checkpoint_path)
+    #
+    # model = CharRNN(converter.vocab_size, sampling=True,
+    #                 lstm_size=FLAGS.lstm_size, num_layers=FLAGS.num_layers,
+    #                 use_embedding=FLAGS.use_embedding,
+    #                 embedding_size=FLAGS.embedding_size)
+    # model.load(FLAGS.checkpoint_path)
+    # start = converter.text_to_arr(FLAGS.start_string)
+    # arr = model.sample(FLAGS.max_length, start, converter.vocab_size)
+    # print(converter.arr_to_text(arr))
 
-    model = CharRNN(converter.vocab_size, sampling=True,
-                    lstm_size=FLAGS.lstm_size, num_layers=FLAGS.num_layers,
-                    use_embedding=FLAGS.use_embedding,
-                    embedding_size=FLAGS.embedding_size)
-    model.load(FLAGS.checkpoint_path)
-    start = converter.text_to_arr(FLAGS.start_string)
-    arr = model.sample(FLAGS.max_length, start, converter.vocab_size)
-    print(converter.arr_to_text(arr))
-
-    host = ('localhost', 22222)
+    host = ('0.0.0.0', 22222)
     server = HTTPServer(host, Resquest)
     print("Starting server, listen at: %s:%s" % host)
     server.serve_forever()
