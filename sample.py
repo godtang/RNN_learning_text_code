@@ -68,7 +68,8 @@ class fillPoem(threading.Thread):  # 继承父类threading.Thread
                     poemList.append(converter.arr_to_text(arr))
                 finally:
                     mutex.release()
-                    time.sleep(1)
+            else:
+                time.sleep(1)
 
 def main(_):
     thread = fillPoem(1)
